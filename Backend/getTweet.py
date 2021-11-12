@@ -18,4 +18,4 @@ def getTweet(hashtag):
 
 
 
-# print(getTweet('arduino'))
+print(getTweet('arduino'))

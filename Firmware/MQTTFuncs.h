@@ -6,7 +6,7 @@ bool mqttConnect();
 void mqttPublish(String path, String msg);
 int deviceExisits = 0;
 String lastTweetV = "HELLO";
-String hastagV="mars";
+String hastagV = "mars";
 String getLastTweet()
 {
     return lastTweetV;
@@ -28,7 +28,7 @@ void MQTTSubscriptions()
 
     mqttClient.subscribe(topicN.c_str());
 }
-void callback(char *topic, byte *payload, unsigned int length)
+void IRAM_ATTR callback(char *topic, byte *payload, unsigned int length)
 {
     Serial.print("Message arrived [");
     Serial.print(topic);
@@ -45,7 +45,6 @@ void callback(char *topic, byte *payload, unsigned int length)
         lastTweetV = pLoad;
     }
 
-   
     pLoad = "";
 }
 void reconnect()
@@ -61,7 +60,7 @@ void reconnect()
         if (mqttClient.connect(clientId.c_str(), mqtt_user, mqtt_pass))
         {
             Serial.println("Established:" + String(clientId));
-            
+
             MQTTSubscriptions();
             // return true;
         }
@@ -125,7 +124,8 @@ void mqttPublish(String path, String msg)
     mqttClient.publish(path.c_str(), msg.c_str());
 }
 
-void setHashTag(String v){
-    hastagV=v;
-    mqttPublish("twitter/hashtag_set",hastagV);
+void setHashTag(String v)
+{
+    hastagV = v;
+    mqttPublish("twitter/hashtag_set", hastagV);
 }

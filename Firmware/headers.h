@@ -1,31 +1,9 @@
 
-#if defined(ARDUINO_ARCH_ESP8266)
-#include <ESP8266WiFi.h>
-#include <ESP8266WebServer.h>
-#elif defined(ARDUINO_ARCH_ESP32)
-#include <WiFi.h>
-#include <WebServer.h>
-#endif
 
-#if defined(ARDUINO_ARCH_ESP8266)
-ESP8266WebServer server;
-#elif defined(ARDUINO_ARCH_ESP32)
-WebServer server;
-#endif
+#include <WiFi.h>
+#include <WiFiClient.h>
 #include <PubSubClient.h>
 #include "SoftwareStack.h"
-
-#if defined(ARDUINO_ARCH_ESP8266)
-#ifdef AUTOCONNECT_USE_SPIFFS
-FS &FlashFS = SPIFFS;
-#else
-#include <LittleFS.h>
-FS &FlashFS = LittleFS;
-#endif
-#elif defined(ARDUINO_ARCH_ESP32)
-#include <SPIFFS.h>
-fs::SPIFFSFS &FlashFS = SPIFFS;
-#endif
 #include "neoTimer.h"
 
 #define GET_CHIPID() ((uint16_t)(ESP.getEfuseMac() >> 32))

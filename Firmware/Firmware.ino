@@ -5,14 +5,20 @@ int RCLK_Pin = 23;  //pin 12 on the 75HC595h
 int SRCLK_Pin = 22; //pin 11 on the 75HC595
 
 // Wifi Details
-#include <WiFi.h>
-#include <WiFiClient.h>
+
 #include "headers.h"   //all misc. headers and functions
 #include "MQTTFuncs.h" //MQTT related functions
 
-char ssid[] = "SKY9C5DC"; // Your Wi-Fi Credentials
-char pass[] = "UTWVDVFS";
+// char ssid[] = "SKY9C5DC"; // Your Wi-Fi Credentials
+// char pass[] = "UTWVDVFS";
 
+char ssid[] = "3STechLabs"; // Your Wi-Fi Credentials
+char pass[] = "%@3stech@nauman%";
+
+TaskHandle_t Twitter;
+Neotimer twitterGetTimer = Neotimer(2000); // Set timer's preset
+
+String message = "HELLO"; // This is the message that will be displayed
 //How many of the shift registers - change this
 #define number_of_74hc595s 1
 
@@ -21,6 +27,7 @@ char pass[] = "UTWVDVFS";
 boolean registers[numOfRegisterPins];
 
 //set all register pins to LOW
+void loopFunction(void *pvParameters);
 void clearRegisters()
 {
   for (int i = numOfRegisterPins - 1; i >= 0; i--)
@@ -120,7 +127,28 @@ int r9;
 int r10;
 int r11;
 int r12;
+
 //////////////////////////////////////////////////////////////////////////////
+void connectToWiFi()
+{
+  int TryCount = 0;
+  //log_i( "connect to wifi" );
+  WiFi.disconnect();
+  WiFi.begin(ssid, pass);
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    TryCount++;
+
+    
+    Serial.print(".");
+    delay(1000);
+    if (TryCount == 20)
+    {
+      ESP.restart();
+    }
+  }
+  // WiFi.onEvent( WiFiEvent );
+}
 void setup()
 {
 
@@ -136,26 +164,60 @@ void setup()
 
   // Connect to WIFI
   Serial.print("Connecting to ");
-  Serial.println(ssid);
-  WiFi.begin(ssid, pass);
-  int wifi_ctr = 0;
-  while (WiFi.status() != WL_CONNECTED)
-  {
-    delay(500);
-    Serial.print(".");
-  }
+  connectToWiFi();
   Serial.println("WiFi connected");
   mqttConnect(); //start mqtt
 
-  setHashTag("football");//to set the hastag
+  xTaskCreatePinnedToCore(
+      loopFunction, /* Task function. */
+      "Twitter",    /* name of task. */
+      10000,        /* Stack size of task */
+      NULL,         /* parameter of the task */
+      1,            /* priority of the task */
+      &Twitter,     /* Task handle to keep track of created task */
+      1);
+  delay(500);
+  setHashTag("football"); //to set the hastag
 }
 
+void loopFunction(void *pvParameters)
+{
+  mqttClient.setKeepAlive( 90 );
+
+  for (;;)
+  {
+    // message = getLastTweet(); //returns a string of latest tweet of the set hashtag
+    if ((wclient.connected()) && (WiFi.status() == WL_CONNECTED))
+    {
+      // if (twitterGetTimer.repeat())
+      // {
+      Serial.println(getLastTweet());
+      //}
+      if (!mqttClient.connected())
+      {
+        reconnect();
+      }
+      mqttClient.loop();
+    }
+    else if (!(WiFi.status() == WL_CONNECTED))
+    {
+      //connect to wifi then connect to mqtt here
+      WiFi.disconnect();
+      connectToWiFi();
+    }
+    if (WiFi.status() == WL_IDLE_STATUS)
+    {
+      ESP.restart();
+
+      vTaskDelay(1000 / portTICK_PERIOD_MS);
+    }
+    vTaskDelay(10 / portTICK_PERIOD_MS);
+    // delay(50);
+  }
+}
 //////////////////////////////////////////////////////////////////////////////
 void loop()
 {
-
-  String message = "HELLO"; // This is the message that will be displayed
-  message = getLastTweet(); //returns a string of latest tweet of the set hashtag
 
   s1 = toupper(message[0]) - '@';
   s2 = toupper(message[1]) - '@';
@@ -271,19 +333,6 @@ void loop()
   }
 
   move_step();
-
-  if (!mqttClient.connected())
-  {
-    reconnect();
-  }
-  mqttClient.loop();
-  if (WiFi.status() == WL_IDLE_STATUS)
-  {
-
-    ESP.restart();
-
-    delay(1000);
-  }
 }
 
 void move_step()
