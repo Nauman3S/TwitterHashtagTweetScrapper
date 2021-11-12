@@ -48,13 +48,13 @@ client.subscribe("twitter/hashtag_set")
 client.loop_start()
 lastTweet=''
 oldtime = time.time()
-print(getTweet(hastagValue))
+print(getTData(hastagValue))
 while 1:
     
     # lastTweet=getTweet()
     if time.time() - oldtime > 59:
         oldtime=time.time()
-        nowTweet=getTweet(hastagValue)
+        nowTweet=getTData(hastagValue)
         if(lastTweet!=nowTweet):
             lastTweet=nowTweet
         client.publish('twitter/tweet_get',lastTweet)

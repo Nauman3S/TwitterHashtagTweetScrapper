@@ -197,16 +197,7 @@ void loopFunction(void *pvParameters)
     // message = getLastTweet(); //returns a string of latest tweet of the set hashtag
     if ((wclient.connected()) && (WiFi.status() == WL_CONNECTED))
     {
-      // if (twitterGetTimer.repeat())
-      // if (queue != NULL)
-      // {
-      //   char element[2024];
-      //   xQueueReceive(queue, &element, (TickType_t )(100/portTICK_PERIOD_MS));
-      //   Serial.println(element);
-      // }
-      // {
-
-      //}
+      
       if (!mqttClient.connected())
       {
         Serial.println("Reconnecting MQTT Client.");
@@ -238,11 +229,11 @@ void loop()
   {
     char element[2024];
     xQueueReceive(queue, &element, (TickType_t)(100 / portTICK_PERIOD_MS));
-    //Serial.println(element);
     message = String(element);
     Serial.print("TWEET: ");
     Serial.println(message);
   }
+  //use message variable to get the latest tweet
 
   s1 = toupper(message[0]) - '@';
   s2 = toupper(message[1]) - '@';
