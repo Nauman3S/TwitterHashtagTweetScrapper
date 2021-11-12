@@ -43,7 +43,7 @@ void IRAM_ATTR callback(char *topic, byte *payload, unsigned int length)
     if (String(topic) == String("twitter/tweet_get"))
     {
         //lastTweetV = pLoad;
-        Serial.println(pLoad);
+        //Serial.println(pLoad);
         pLoad=pLoad+"\0";
         char val[2024];
         strcpy(val,pLoad.c_str());

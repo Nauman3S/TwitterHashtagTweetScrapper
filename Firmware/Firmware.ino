@@ -3,7 +3,7 @@
 int SER_Pin = 21;   //pin 14 on the 75HC595
 int RCLK_Pin = 23;  //pin 12 on the 75HC595h
 int SRCLK_Pin = 22; //pin 11 on the 75HC595
-char tweetData[2024] = {"HERE IS A SAMPLE TWEET DATA\0"};
+char tweetData[2024] = {"HELLO\0"};
 // Wifi Details
 
 #include "headers.h"   //all misc. headers and functions
@@ -198,12 +198,12 @@ void loopFunction(void *pvParameters)
     if ((wclient.connected()) && (WiFi.status() == WL_CONNECTED))
     {
       // if (twitterGetTimer.repeat())
-      if (queue != NULL)
-      {
-        char element[2024];
-        xQueueReceive(queue, &element, (TickType_t )(100/portTICK_PERIOD_MS));
-        Serial.println(element);
-      }
+      // if (queue != NULL)
+      // {
+      //   char element[2024];
+      //   xQueueReceive(queue, &element, (TickType_t )(100/portTICK_PERIOD_MS));
+      //   Serial.println(element);
+      // }
       // {
 
       //}
@@ -234,6 +234,15 @@ void loopFunction(void *pvParameters)
 void loop()
 {
   String message = "HELLO"; // This is the message that will be displayed
+  if (queue != NULL)
+  {
+    char element[2024];
+    xQueueReceive(queue, &element, (TickType_t)(100 / portTICK_PERIOD_MS));
+    //Serial.println(element);
+    message = String(element);
+    Serial.print("TWEET: ");
+    Serial.println(message);
+  }
 
   s1 = toupper(message[0]) - '@';
   s2 = toupper(message[1]) - '@';
