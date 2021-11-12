@@ -3,7 +3,7 @@
 int SER_Pin = 21;   //pin 14 on the 75HC595
 int RCLK_Pin = 23;  //pin 12 on the 75HC595h
 int SRCLK_Pin = 22; //pin 11 on the 75HC595
-
+char tweetData[2024] = {"HERE IS A SAMPLE TWEET DATA\0"};
 // Wifi Details
 
 #include "headers.h"   //all misc. headers and functions
@@ -16,9 +16,9 @@ char ssid[] = "3STechLabs"; // Your Wi-Fi Credentials
 char pass[] = "%@3stech@nauman%";
 
 TaskHandle_t Twitter;
+
 Neotimer twitterGetTimer = Neotimer(2000); // Set timer's preset
 
-String message = "HELLO"; // This is the message that will be displayed
 //How many of the shift registers - change this
 #define number_of_74hc595s 1
 
@@ -139,7 +139,6 @@ void connectToWiFi()
   {
     TryCount++;
 
-    
     Serial.print(".");
     delay(1000);
     if (TryCount == 20)
@@ -166,7 +165,16 @@ void setup()
   Serial.print("Connecting to ");
   connectToWiFi();
   Serial.println("WiFi connected");
+  mqttClient.setBufferSize(2024);
   mqttConnect(); //start mqtt
+
+  queue = xQueueCreate(1, sizeof(tweetData));
+  if (queue == NULL)
+  {
+    Serial.println("Error creating the queue");
+  }
+
+  xQueueSend(queue, &tweetData, portMAX_DELAY);
 
   xTaskCreatePinnedToCore(
       loopFunction, /* Task function. */
@@ -182,7 +190,7 @@ void setup()
 
 void loopFunction(void *pvParameters)
 {
-  mqttClient.setKeepAlive( 90 );
+  // mqttClient.setKeepAlive(90);
 
   for (;;)
   {
@@ -190,11 +198,18 @@ void loopFunction(void *pvParameters)
     if ((wclient.connected()) && (WiFi.status() == WL_CONNECTED))
     {
       // if (twitterGetTimer.repeat())
+      if (queue != NULL)
+      {
+        char element[2024];
+        xQueueReceive(queue, &element, (TickType_t )(100/portTICK_PERIOD_MS));
+        Serial.println(element);
+      }
       // {
-      Serial.println(getLastTweet());
+
       //}
       if (!mqttClient.connected())
       {
+        Serial.println("Reconnecting MQTT Client.");
         reconnect();
       }
       mqttClient.loop();
@@ -218,6 +233,7 @@ void loopFunction(void *pvParameters)
 //////////////////////////////////////////////////////////////////////////////
 void loop()
 {
+  String message = "HELLO"; // This is the message that will be displayed
 
   s1 = toupper(message[0]) - '@';
   s2 = toupper(message[1]) - '@';

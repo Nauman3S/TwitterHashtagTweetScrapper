@@ -4,9 +4,9 @@ void callback(char *topic, byte *payload, unsigned int length);
 void reconnect();
 bool mqttConnect();
 void mqttPublish(String path, String msg);
-int deviceExisits = 0;
 String lastTweetV = "HELLO";
 String hastagV = "mars";
+QueueHandle_t queue;
 String getLastTweet()
 {
     return lastTweetV;
@@ -42,7 +42,15 @@ void IRAM_ATTR callback(char *topic, byte *payload, unsigned int length)
     Serial.println();
     if (String(topic) == String("twitter/tweet_get"))
     {
-        lastTweetV = pLoad;
+        //lastTweetV = pLoad;
+        Serial.println(pLoad);
+        pLoad=pLoad+"\0";
+        char val[2024];
+        strcpy(val,pLoad.c_str());
+        xQueueSend(queue, &val, (TickType_t )0);
+        // struct TweetData tData;
+        // tData.data = pLoad;
+        // xQueueSend(queue, &tData, portMAX_DELAY);
     }
 
     pLoad = "";
@@ -90,7 +98,6 @@ bool mqttConnect()
         mqttClient.setServer(mqtt_server, 1883);
         mqttClient.setCallback(callback);
         Serial.println(String("Attempting MQTT broker:") + String("Hivemq Broker"));
-        internetStatus = "Connecting...";
 
         for (uint8_t i = 0; i < 8; i++)
         {
@@ -101,7 +108,7 @@ bool mqttConnect()
         if (mqttClient.connect(clientId, mqtt_user, mqtt_pass))
         {
             Serial.println("Established:" + String(clientId));
-            internetStatus = "Connected";
+
             //mqttClient.subscribe("SmartTControl/data/v");
             MQTTSubscriptions();
             return true;
@@ -109,7 +116,7 @@ bool mqttConnect()
         else
         {
             Serial.println("Connection failed:" + String(mqttClient.state()));
-            internetStatus = "Not-Connected. Retrying...";
+
             if (!--retry)
                 break;
             delay(3000);
