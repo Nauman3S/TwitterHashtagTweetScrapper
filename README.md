@@ -89,6 +89,7 @@ You should have Arduino IDE Installed
 ### Topics List
 #### Setting Hashtag
 1.  <span style="color: green">twitter/hashtag_set</span> `(set a hashtag string to get the latest tweet of that hashtag) WRITE-ONLY`
+2.  1.  <span style="color: green">twitter/tweet_freq_set</span> `(set the latest tweet check frequency in seconds.) WRITE-ONLY`
 
 #### Getting Latest Tweet
 
@@ -98,9 +99,10 @@ You should have Arduino IDE Installed
 ## Usage <a name = "usage"></a>
 
 1.  Make sure to put right WiFi creds in Firmware.ino file line number 13 and 14.
-2.  Set the hashtag to get tweets from in Firmware.ino file on line number 150.
-3.  Upload the code to your ESP32.
-4.  Open the serial monitor to see the live tweets being received.
+2.  Set the content_get frequency in seconds on line number 189.
+3.  Set the hashtag to get tweets from in Firmware.ino file on line number 190.
+4.  Upload the code to your ESP32.
+5.  Open the serial monitor to see the live tweets being received.
     
 ## ⛏️ Built Using <a name = "built_using"></a>
 
