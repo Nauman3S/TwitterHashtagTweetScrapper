@@ -12,8 +12,8 @@ char tweetData[2024] = {"HELLO\0"};
 // char ssid[] = "SKY9C5DC"; // Your Wi-Fi Credentials
 // char pass[] = "UTWVDVFS";
 
-char ssid[] = "3STechLabs"; // Your Wi-Fi Credentials
-char pass[] = "%@3stech@nauman%";
+char ssid[] = "hotspot2"; // Your Wi-Fi Credentials
+char pass[] = "abc123098a#";
 
 TaskHandle_t Twitter;
 
@@ -185,7 +185,9 @@ void setup()
       &Twitter,     /* Task handle to keep track of created task */
       1);
   delay(500);
-  setHashTag("football"); //to set the hastag
+
+  setTweetFrequency("10");//10 seconds
+  setHashTag("baseball"); //to set the hastag
 }
 
 void loopFunction(void *pvParameters)
@@ -234,7 +236,7 @@ void loop()
     Serial.println(message);
   }
   //use message variable to get the latest tweet
-
+  
   s1 = toupper(message[0]) - '@';
   s2 = toupper(message[1]) - '@';
   s3 = toupper(message[2]) - '@';

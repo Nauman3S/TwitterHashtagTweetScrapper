@@ -10,7 +10,8 @@ MASTER_KILL_SWITCH=0
 
 msgV=""
 topicV=""
-hastagValue='mars'
+hastagValue='temp'
+tweetFreq=50#seconds
 
 def on_connect(client, userdata, rc):
     #print("Connected with result code "+str(rc))
@@ -20,7 +21,7 @@ def on_connect(client, userdata, rc):
 
 # The callback for when a PUBLISH message is received from the server.
 def on_message(client, userdata, msg):
-    global dataFreq
+    global tweetFreq
     global msgV,topicV, hastagValue
     #print(msg.topic+" "+str(msg.payload))
     topicV=str(msg.topic)
@@ -29,6 +30,9 @@ def on_message(client, userdata, msg):
     if(topicV=='twitter/hashtag_set'):
         doSomethins=0
         hastagValue=msgV
+    if(topicV=='twitter/tweet_freq_set'):
+        
+        tweetFreq=int(msgV)
         # client.publish('BLEMesh/API/response',str(k)+'^Done')
         
     
@@ -43,6 +47,7 @@ client.on_message = on_message
 
 client.connect("broker.hivemq.com", 1883, 60)
 client.subscribe("twitter/hashtag_set")
+client.subscribe("twitter/tweet_freq_set")
 
 
 client.loop_start()
@@ -52,9 +57,10 @@ print(getTData(hastagValue))
 while 1:
     
     # lastTweet=getTweet()
-    if time.time() - oldtime > 59:
+    if time.time() - oldtime > tweetFreq:
         oldtime=time.time()
         nowTweet=getTData(hastagValue)
         if(lastTweet!=nowTweet):
             lastTweet=nowTweet
-        client.publish('twitter/tweet_get',lastTweet)
+        if(hastagValue!='temp'):
+            client.publish('twitter/tweet_get',lastTweet)

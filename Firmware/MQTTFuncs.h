@@ -44,9 +44,10 @@ void IRAM_ATTR callback(char *topic, byte *payload, unsigned int length)
     {
         //lastTweetV = pLoad;
         //Serial.println(pLoad);
-        pLoad=pLoad+"\0";
+        String tweetContent=ss.StringSeparator(pLoad,';',0);
+        tweetContent=tweetContent+"\0";
         char val[2024];
-        strcpy(val,pLoad.c_str());
+        strcpy(val,tweetContent.c_str());
         xQueueSend(queue, &val, (TickType_t )0);
         // struct TweetData tData;
         // tData.data = pLoad;
@@ -135,4 +136,10 @@ void setHashTag(String v)
 {
     hastagV = v;
     mqttPublish("twitter/hashtag_set", hastagV);
+}
+
+void setTweetFrequency(String v)
+{
+    
+    mqttPublish("twitter/tweet_freq_set", v);
 }
