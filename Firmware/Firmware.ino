@@ -186,8 +186,8 @@ void setup()
       1);
   delay(500);
 
-  setTweetFrequency("10");//10 seconds
-  setHashTag("baseball"); //to set the hastag
+  setTweetFrequency("15");//15 seconds
+  setHashTag("London"); //to set the hastag
 }
 
 void loopFunction(void *pvParameters)

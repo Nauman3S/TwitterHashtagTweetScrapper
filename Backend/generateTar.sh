@@ -1,2 +1,2 @@
-rm -rf mesh-backend.tar
-tar -cvf mesh-backend.tar *
+rm -rf tweets-handler.tar
+tar -cvf tweets-handler.tar *

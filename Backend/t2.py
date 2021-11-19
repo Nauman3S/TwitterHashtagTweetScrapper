@@ -55,12 +55,15 @@ lastTweet=''
 oldtime = time.time()
 print(getTData(hastagValue))
 while 1:
+    try:
     
     # lastTweet=getTweet()
-    if time.time() - oldtime > tweetFreq:
-        oldtime=time.time()
-        nowTweet=getTData(hastagValue)
-        if(lastTweet!=nowTweet):
-            lastTweet=nowTweet
-        if(hastagValue!='temp'):
-            client.publish('twitter/tweet_get',lastTweet)
+        if time.time() - oldtime > tweetFreq:
+            oldtime=time.time()
+            nowTweet=getTData(hastagValue)
+            if(lastTweet!=nowTweet):
+                lastTweet=nowTweet
+            if(hastagValue!='temp'):
+                client.publish('twitter/tweet_get',lastTweet)
+    except Exception as e:
+        print('error occurred: ',e)
